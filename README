@@ -1,0 +1,6 @@
+we are using g++
+example of the lincluded libraries in the make files:
+LDLIBS= -lglfw -lgl3w
+SRCS= utils/Shader.cpp utils/ShaderProgram.cpp utils/sb7.cpp
+exmaple call in the make file
+ g++ Chapter_one/clear.cpp Chapter_one/sb7.cpp $(LDLIBS) -o clear 
