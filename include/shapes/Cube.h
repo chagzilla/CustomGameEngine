@@ -17,11 +17,11 @@ class Cube {
         void setCameraMat(glm::mat4 * camMat);
         void setProjMat(glm::mat4 * projMat);
         GLuint shaderProgram();
+        glm::mat4 * vMat;
+        glm::mat4 * pMat;
     private:
         glm::vec3 cubeLoc;
         glm::mat4 mMat;
-        glm::mat4 * vMat;
-        glm::mat4 * pMat;
         ShaderProgram * prog;
         GLuint vao[1];
         GLuint vbo[1];

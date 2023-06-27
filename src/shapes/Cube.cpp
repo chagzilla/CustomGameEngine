@@ -56,6 +56,7 @@ void Cube::addShaderProg(ShaderProgram * shaderProg) {
 
 void Cube::update(float timeSinceLastFrame) {
     mMat = glm::rotate(mMat, timeSinceLastFrame, glm::vec3(0.3, 0.5, 0));
+    // (*vMat) = glm::rotate(*vMat, 0.1f * timeSinceLastFrame, glm::vec3(0.3, 0.5, 0));
 }
 
 void Cube::render() {
@@ -66,6 +67,7 @@ void Cube::render() {
     projLoc = glGetUniformLocation(prog->getProgram(), "proj_matrix");
 
     glm::mat4 mvMat = (*vMat) * (mMat);
+    // glm::mat4 mvMat = glm::lookAt(glm::vec3(0.0, 0.0, 3), glm::vec3(0.0, 2.0, 0.0), glm::vec3(0.0, 1.0, 0.0))  * mMat;
     glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(*pMat));
 

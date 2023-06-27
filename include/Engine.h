@@ -13,14 +13,14 @@ class Engine {
     private:
         float cameraSpeed = 10;
         Cube * c; 
+        float pitch, yaw;
         glm::mat4 vMat, pMat;
         glm::vec3 cameraLoc;
+        glm::vec3 cameraFront;
         GLFWwindow * window;
         ShaderProgram * prog;
-        bool MOVEUP;
-        bool MOVEDOWN;
-        bool MOVELEFT;
-        bool MOVERIGHT;
+        bool MOVEUP, MOVEDOWN, MOVELEFT, MOVERIGHT;
+        double lastMouseXPos, lastMouseYPos;
         double currentTimeStamp;
         double lastTimeStamp;
         double timeSinceLastFrame;
@@ -32,4 +32,5 @@ class Engine {
         void render();
         void update();
         void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        void mouse_callback(double xPos, double yPos);
 };

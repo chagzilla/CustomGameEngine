@@ -10,6 +10,10 @@ Engine::Engine(int width, int height) {
     init(width, height);
 }
 
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+ std::cout << "xpos: " << xpos << std::endl << "ypos: " << ypos << std::endl;
+}
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -35,6 +39,50 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_LEFT && (action == GLFW_RELEASE))
         MOVELEFT = false;
     // vMat = glm::translate(glm::mat4(1.0), cameraLoc);
+}
+
+void Engine::mouse_callback(double xPos, double yPos) {
+    // std::cout << "Setting new mouse pos: (" << xPos << ", " << yPos << ")" << std::endl;
+    // glm::vec3 newPos(xPos, yPos, 0);
+    // glm::vec3 oldPos(lastMouseXPos, lastMouseYPos, 0);
+    // lastMouseXPos = xPos;
+    // lastMouseYPos = yPos;
+    // glm::vec3 direction = newPos - oldPos;
+    // newPos = glm::normalize(newPos);
+    // oldPos = glm::normalize(oldPos);
+    // float radians = glm::dot(newPos, oldPos);
+    // //std::cout << "radians: " << radians << std::endl;
+    // glm::vec3 norm = glm::cross(newPos, oldPos);
+    //std::cout << "(" << direction.x << ", " << direction.y << ", " << direction.z << ")" << std::endl;
+
+    // vMat = glm::rotate(vMat, -direction.x * 0.1f, glm::vec3(0, 1, 0));
+    // vMat = glm::rotate(vMat, -direction.y * 0.1f, glm::vec3(1, 0, 0));
+    //vMat = glm::lookAt(glm::vec3(0.0, 0.0, 8), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 5.0, 0.0)); 
+
+    float xoffset = xPos - lastMouseXPos;
+    float yoffset = lastMouseYPos - yPos; 
+    lastMouseXPos = xPos;
+    lastMouseYPos = yPos;
+
+    float sensitivity = 0.01f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 direction;
+
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+    vMat = glm::lookAt(cameraLoc, cameraFront + cameraLoc, glm::vec3(0, 1, 0));
 }
 
 int Engine::init(int width, int height) {
@@ -63,11 +111,17 @@ int Engine::init(int width, int height) {
     std::cout << "CREATED glfw window" << std::endl;
     glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, this);
-    auto func = [](GLFWwindow* w, int i, int n , int t, int y)
+    auto key_callback = [](GLFWwindow* w, int i, int n , int t, int y)
     {
         static_cast<Engine*>(glfwGetWindowUserPointer(w))->key_callback(w, i, n, t, y);
     };
-    glfwSetKeyCallback(window, func);
+    glfwSetKeyCallback(window, key_callback);
+
+    auto mouseFunc = [](GLFWwindow* w, double xpos, double ypos)
+    {
+        static_cast<Engine*>(glfwGetWindowUserPointer(w))->mouse_callback(xpos, ypos);
+    };
+    glfwSetCursorPosCallback(window, mouseFunc);
 
 
     std::cout << "INITIALIZING GLEW" << std::endl;
@@ -82,8 +136,12 @@ int Engine::init(int width, int height) {
     float aspect = (float)w / (float)h;
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 
-    cameraLoc = glm::vec3(0.0, 0.0, -8.0f);
-    vMat = glm::translate(glm::mat4(1.0), cameraLoc);
+    cameraLoc = glm::vec3(0.0, 0.0, 8.0f);
+    cameraFront = glm::vec3(0.0, 0.0, -1.0f);
+    yaw = -90.0f;
+    //vMat = glm::lookAt(glm::vec3(0.0, 0.0, 8), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    //vMat = glm::translate(vMat, cameraLoc);
+    //vMat = glm::rotate(vMat, 2.9f, glm::vec3(1.0f, 0, 0));
     c = new Cube(&vMat, &pMat);
 
     return 0;
@@ -111,15 +169,15 @@ void Engine::render() {
 
 void Engine::update() {
     if (MOVEUP) 
-        cameraLoc.y -= cameraSpeed * timeSinceLastFrame;
-    if (MOVEDOWN)
         cameraLoc.y += cameraSpeed * timeSinceLastFrame;
+    if (MOVEDOWN)
+        cameraLoc.y -= cameraSpeed * timeSinceLastFrame;
     if (MOVELEFT)
-        cameraLoc.x += cameraSpeed * timeSinceLastFrame;
+        cameraLoc += (glm::cross(glm::vec3(0, 1, 0), cameraFront) * cameraSpeed * (float)timeSinceLastFrame);
     if (MOVERIGHT)
-        cameraLoc.x -= cameraSpeed * timeSinceLastFrame;
+        cameraLoc -= (glm::cross(glm::vec3(0, 1, 0), cameraFront) * cameraSpeed * (float)timeSinceLastFrame);
 
-    vMat = glm::translate(glm::mat4(1.0), cameraLoc);
+    vMat = glm::lookAt(cameraLoc, cameraFront + cameraLoc, glm::vec3(0, 1, 0));
     c->update(timeSinceLastFrame);
 }
 
@@ -128,8 +186,11 @@ int Engine::run() {
     currentTimeStamp = 0;
     lastTimeStamp = 0;
     timeSinceLastFrame = 0;
-
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
     glfwSwapInterval(1);
+    glfwGetCursorPos(window, &lastMouseXPos, &lastMouseYPos);
+
     while (!glfwWindowShouldClose(window))
     {
         update();
