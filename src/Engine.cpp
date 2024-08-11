@@ -1,5 +1,6 @@
 #include "../include/Engine.h"
 #include <iostream>
+#include <cstdlib>
 #include "../include/shapes/Cube.h"
 
 Engine::Engine() {
@@ -64,7 +65,7 @@ void Engine::mouse_callback(double xPos, double yPos) {
     lastMouseXPos = xPos;
     lastMouseYPos = yPos;
 
-    float sensitivity = 0.01f;
+    float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -82,7 +83,7 @@ void Engine::mouse_callback(double xPos, double yPos) {
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
-    vMat = glm::lookAt(cameraLoc, cameraFront + cameraLoc, glm::vec3(0, 1, 0));
+    vMat = glm::lookAt(cameraLoc, cameraFront , glm::vec3(0, 1, 0)); // + cameraLoc
 }
 
 int Engine::init(int width, int height) {
@@ -135,6 +136,8 @@ int Engine::init(int width, int height) {
     glfwGetFramebufferSize(window, &w, &h);
     float aspect = (float)w / (float)h;
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+    UIVMat = glm::mat4(1.0f);
+    UIPMat = glm::mat4(1.0f);
 
     cameraLoc = glm::vec3(0.0, 0.0, 8.0f);
     cameraFront = glm::vec3(0.0, 0.0, -1.0f);
@@ -143,6 +146,11 @@ int Engine::init(int width, int height) {
     //vMat = glm::translate(vMat, cameraLoc);
     //vMat = glm::rotate(vMat, 2.9f, glm::vec3(1.0f, 0, 0));
     c = new Cube(&vMat, &pMat);
+    p = new Pyramid(5, 1, 2, &vMat, &pMat);
+    poly = new Polygon(10, 0.5f, &UIVMat, &UIPMat);
+    for (int i = 0; i < 100; i++) {
+        shapes.push_back(Polygon((rand() % 7) + 3, (rand() % 100) / 1000.0f, glm::vec3((rand() % 100) / 50.0f - 1.0f, 1.5 + ((rand() % 100) / 10.0f), 0.0f), ((rand() % 100) / 10.0f), &UIVMat, &UIPMat));
+    }
 
     return 0;
 }
@@ -160,18 +168,25 @@ void Engine::render() {
     timeSinceLastFrame = (currentTimeStamp - lastTimeStamp) / 2;
     lastTimeStamp = currentTimeStamp;
 
-    glClearColor(0, 1.0, 0, 1.0);
+    glClearColor(0, 0.0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glClear(GL_DEPTH_BUFFER_BIT);
 
+   
     c->render();
+    p->render();
+    // poly->render();
+    for (int i = 0; i < shapes.size(); i++) {
+        shapes[i].render();
+    }
+
 }
 
 void Engine::update() {
     if (MOVEUP) 
-        cameraLoc.y += cameraSpeed * timeSinceLastFrame;
+        cameraLoc += cameraFront * (float)timeSinceLastFrame * 10.0f;
     if (MOVEDOWN)
-        cameraLoc.y -= cameraSpeed * timeSinceLastFrame;
+        cameraLoc -= cameraFront * (float)timeSinceLastFrame * 10.0f;
     if (MOVELEFT)
         cameraLoc += (glm::cross(glm::vec3(0, 1, 0), cameraFront) * cameraSpeed * (float)timeSinceLastFrame);
     if (MOVERIGHT)
@@ -179,6 +194,11 @@ void Engine::update() {
 
     vMat = glm::lookAt(cameraLoc, cameraFront + cameraLoc, glm::vec3(0, 1, 0));
     c->update(timeSinceLastFrame);
+    p->update(timeSinceLastFrame);
+    // poly->update(timeSinceLastFrame);
+    for (int i = 0; i < shapes.size(); i++) {
+        shapes[i].update(timeSinceLastFrame);
+    }
 }
 
 int Engine::run() {

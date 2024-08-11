@@ -1,5 +1,5 @@
 LDLIBS= -lglfw -lglew -framework OpenGL
-SRCS= src/Engine.cpp src/shaders/Shader.cpp src/shaders/ShaderProgram.cpp src/shapes/Cube.cpp
+SRCS= src/Engine.cpp src/shaders/Shader.cpp src/shaders/ShaderProgram.cpp src/shapes/Cube.cpp src/shapes/Pyramid.cpp src/shapes/Shape.cpp src/shapes/Polygon.cpp
 game:
 	g++ -std=c++11 main.cpp $(SRCS) $(LDLIBS) -o game
 clear_screen: 

@@ -15,8 +15,8 @@ Cube::Cube(glm::mat4 * camMat, glm::mat4 * projMat){
 void Cube::init() {
 
     // the initial location is the origin
-    cubeLoc = glm::vec3(0.0f, 0.0f, 0.0f);
-    mMat = glm::translate(glm::mat4(1.0f), cubeLoc);
+    loc = glm::vec3(0.0f, 0.0f, 0.0f);
+    mMat = glm::translate(glm::mat4(1.0f), loc);
 
     std::vector<std::pair<GLenum, const char *> > sData;
     sData.push_back(std::make_pair(GL_VERTEX_SHADER, "/Users/wilbertchagula/Documents/CustomGameEngine/shaders/shapes/cube/vertShader.glsl"));
@@ -49,17 +49,13 @@ void Cube::init() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
 }
 
-
-void Cube::addShaderProg(ShaderProgram * shaderProg) {
-    prog = shaderProg;
-}
-
 void Cube::update(float timeSinceLastFrame) {
     mMat = glm::rotate(mMat, timeSinceLastFrame, glm::vec3(0.3, 0.5, 0));
     // (*vMat) = glm::rotate(*vMat, 0.1f * timeSinceLastFrame, glm::vec3(0.3, 0.5, 0));
 }
 
 void Cube::render() {
+    glBindVertexArray(vao[0]);
     glUseProgram(prog->getProgram());
 
     GLuint mvLoc, projLoc;
@@ -80,14 +76,3 @@ void Cube::render() {
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
-void Cube::setCameraMat(glm::mat4 * camMat) {
-    vMat = camMat;
-}
-
-void Cube::setProjMat(glm::mat4 * projMat) {
-    pMat = projMat;
-}
-
-GLuint Cube::shaderProgram() {
-    return prog->getProgram();
-}

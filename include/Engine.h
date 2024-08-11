@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "../include/shaders/ShaderProgram.h"
 #include "./shapes/Cube.h"
+#include "./shapes/Pyramid.h"
+#include "./shapes/Polygon.h"
 
 class Engine {
     public:
@@ -11,15 +13,18 @@ class Engine {
         void addShaderProg(ShaderProgram * prog);
         int run();
     private:
+        std::vector<Polygon> shapes;
         float cameraSpeed = 10;
         Cube * c; 
+        Pyramid * p;
+        Polygon * poly;
         float pitch, yaw;
-        glm::mat4 vMat, pMat;
+        glm::mat4 vMat, pMat, UIVMat, UIPMat;
         glm::vec3 cameraLoc;
         glm::vec3 cameraFront;
         GLFWwindow * window;
         ShaderProgram * prog;
-        bool MOVEUP, MOVEDOWN, MOVELEFT, MOVERIGHT;
+        bool MOVEUP = false, MOVEDOWN = false, MOVELEFT = false, MOVERIGHT = false;
         double lastMouseXPos, lastMouseYPos;
         double currentTimeStamp;
         double lastTimeStamp;

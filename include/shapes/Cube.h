@@ -4,27 +4,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "./Shape.h"
 
-
-class Cube {
+class Cube: public Shape {
     public:
         Cube();
         Cube(glm::mat4 * camMat, glm::mat4 * projMat);
         void render();
         void update(float timeSinceLastFrame);
         void init();
-        void addShaderProg(ShaderProgram * shaderProg);
-        void setCameraMat(glm::mat4 * camMat);
-        void setProjMat(glm::mat4 * projMat);
-        GLuint shaderProgram();
-        glm::mat4 * vMat;
-        glm::mat4 * pMat;
-    private:
-        glm::vec3 cubeLoc;
-        glm::mat4 mMat;
-        ShaderProgram * prog;
-        GLuint vao[1];
-        GLuint vbo[1];
 };
 
 #endif
